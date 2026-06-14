@@ -187,8 +187,20 @@ __marimo__/
 .DS_Store
 
 # --- PROJECT SPECIFIC IGNORES ---
-# Ignore the 3GB audio dataset
+# Ignore the massive audio datasets completely
 data/
+data_0db/
+data_minus6db/
 
-# Ignore the bad 20-epoch model, but KEEP the _best model
+# Ignore extracted error files from stress tests
+false_alarms_minus6db/
+hard_negatives_to_review/
+missed_anomalies_minus6db/
+
+# Ignore one-time utility scripts
+merge_trick_files.py
+
+# Ignore outdated/bad model files (but allow V2 to be tracked)
 models/valve_anomaly_resnet18.pth
+models/valve_anomaly_resnet18_best.pth
+models/valve_anomaly_resnet18_best_v1.pth

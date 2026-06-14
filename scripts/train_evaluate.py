@@ -13,7 +13,9 @@ from sklearn.metrics import confusion_matrix, classification_report
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 NORMAL_DIR = os.path.join(BASE_DIR, "data", "normal")
 ANOMALOUS_DIR = os.path.join(BASE_DIR, "data", "anomalous")
-MODEL_SAVE_PATH = os.path.join(BASE_DIR, "models", "valve_anomaly_resnet18_best.pth")
+
+# UNIQUE V2 FILENAME - Protects your original model from being overwritten!
+MODEL_SAVE_PATH = os.path.join(BASE_DIR, "models", "valve_anomaly_resnet18_v2_best.pth")
 
 # 1. Custom Dataset
 class ValveAudioDataset(Dataset):
@@ -53,11 +55,14 @@ train_size = int(0.70 * len(full_dataset))
 val_size = int(0.15 * len(full_dataset))
 test_size = len(full_dataset) - train_size - val_size
 
+# --- SEED LOCKED HERE FOR REPRODUCIBILITY ---
+torch.manual_seed(42)
+
 train_dataset, val_dataset, test_dataset = torch.utils.data.random_split(
     full_dataset, [train_size, val_size, test_size]
 )
 
-# Batch size lowered to 16 to safely fit inside 4GB VRAM
+# Batch size lowered to 16 to safely fit inside VRAM
 train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=16, shuffle=False)
 test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False)
@@ -79,7 +84,7 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 epochs = 20
 best_val_loss = float('inf')
 
-print("\n🏋️ Starting 20-Epoch Training Loop...")
+print("\n🏋️ Starting 20-Epoch V2 Training Loop...")
 for epoch in range(epochs):
     # --- TRAINING PHASE ---
     model.train()
@@ -121,12 +126,12 @@ for epoch in range(epochs):
     # --- SAVE BEST MODEL ---
     if epoch_val_loss < best_val_loss:
         best_val_loss = epoch_val_loss
-        # Safely save straight to the models directory
+        # Safely save straight to the models directory as V2
         torch.save(model.state_dict(), MODEL_SAVE_PATH)
-        print("   🌟 New best model saved!")
+        print("   🌟 New best V2 model saved!")
 
 # 5. Final Unseen Test Evaluation
-print("\n⏳ Loading best model for final test evaluation...")
+print("\n⏳ Loading best V2 model for final test evaluation...")
 model.load_state_dict(torch.load(MODEL_SAVE_PATH))
 model.eval()
 
@@ -143,7 +148,7 @@ all_preds = np.array(all_preds)
 all_labels = np.array(all_labels)
 
 test_accuracy = 100.0 * np.sum(all_preds == all_labels) / len(all_labels)
-print(f"\n🎯 FINAL TEST ACCURACY ON UNSEEN DATA: {test_accuracy:.2f}%\n")
+print(f"\n🎯 FINAL TEST ACCURACY ON UNSEEN SPLIT: {test_accuracy:.2f}%\n")
 
 cm = confusion_matrix(all_labels, all_preds)
 tn, fp, fn, tp = cm.ravel()
