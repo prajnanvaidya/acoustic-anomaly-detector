@@ -36,7 +36,7 @@ Because deep learning model weights exceed standard GitHub storage limits, the t
 **Google Drive Link:**
 
 ```text
-[INSERT_YOUR_GOOGLE_DRIVE_LINK_HERE]
+https://drive.google.com/drive/folders/19L0Oxp_b9rxQ_VTxZ_SGao-Kyx8a2ORC?usp=sharing
 ```
 
 After downloading, place the `.pth` files inside:
