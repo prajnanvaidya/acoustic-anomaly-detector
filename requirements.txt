@@ -5,5 +5,7 @@ librosa
 streamlit
 numpy
 matplotlib
-grad-cam
 opencv-python-headless
+ttach
+scikit-learn
+tqdm
