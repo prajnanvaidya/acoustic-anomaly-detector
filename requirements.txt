@@ -6,6 +6,4 @@ streamlit
 numpy
 matplotlib
 opencv-python-headless
-ttach
-scikit-learn
-tqdm
+grad-cam

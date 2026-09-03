@@ -1,12 +1,3 @@
-import os
-
-# --- DEPENDENCY HACK ---
-# Force install grad-cam without the heavy OpenCV dependency
-try:
-    import pytorch_grad_cam
-except ImportError:
-    os.system("pip install grad-cam --no-deps")
-
 import streamlit as st
 import torch
 import torch.nn as nn
