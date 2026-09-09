@@ -1,0 +1,884 @@
+/* ===========================================================
+   ACOUSTIC DIAGNOSTIC SUITE - command-deck stylesheet
+   Deep navy surfaces / teal instrumentation / amber = fault
+
+   ASCII-only by design: this file is read with an explicit
+   utf-8 handle, but keeping it ASCII means it can never trip
+   a cp1252 default on Windows.
+   =========================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* -- ROOT TOKENS ------------------------------------------- */
+:root {
+    --bg-base:      #060B18;
+    --bg-surface:   #0B1120;
+    --bg-elevated:  #101828;
+    --bg-inset:     #0D1526;
+    --border:       #1C2B45;
+    --border-soft:  #152036;
+    --teal:         #0EA5A0;
+    --teal-dim:     #0A7A76;
+    --teal-glow:    rgba(14, 165, 160, 0.18);
+    --amber:        #F97316;
+    --amber-dim:    #C2580C;
+    --amber-glow:   rgba(249, 115, 22, 0.18);
+    --green:        #10D987;
+    --green-dim:    #0AA86A;
+    --green-glow:   rgba(16, 217, 135, 0.15);
+    --red:          #EF4444;
+    --red-glow:     rgba(239, 68, 68, 0.15);
+    --text-primary: #E2EAF4;
+    --text-secondary: #7A93B4;
+    --text-muted:   #3D5470;
+    --font-display: 'Space Grotesk', system-ui, sans-serif;
+    --font-body:    'Inter', system-ui, sans-serif;
+    --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+    --radius-sm:    6px;
+    --radius-md:    10px;
+    --radius-lg:    14px;
+
+    --panel-pad-y:  1.4rem;
+    --panel-pad-x:  1.5rem;
+    --gap-tile:     12px;
+}
+
+/* -- GLOBAL RESETS ----------------------------------------- */
+html, body, [class*="css"] {
+    font-family: var(--font-body) !important;
+    background-color: var(--bg-base) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-testid="stAppViewContainer"] *,
+[data-testid="stAppViewContainer"] *::before,
+[data-testid="stAppViewContainer"] *::after {
+    box-sizing: border-box;
+}
+
+#MainMenu, footer, header { visibility: hidden; }
+.stDeployButton { display: none; }
+[data-testid="collapsedControl"] { display: none; }
+[data-testid="stHeader"] { background: transparent !important; }
+
+.main .block-container,
+[data-testid="stMainBlockContainer"] {
+    padding: 2rem 2.5rem 4rem 2.5rem;
+    max-width: 1400px;
+}
+
+/* -- SCROLLBARS -------------------------------------------- */
+* { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--teal-dim); }
+
+/* -- KEYBOARD FOCUS ---------------------------------------- */
+:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+/* -- TYPOGRAPHY -------------------------------------------- */
+h1, h2, h3, h4 {
+    font-family: var(--font-display) !important;
+    color: var(--text-primary) !important;
+    letter-spacing: -0.02em;
+}
+
+/* ===========================================================
+   PANELS - self-contained surfaces
+   Static sections are rendered as ONE block of our own HTML
+   rather than through st.container(border=True). That way the
+   element carrying the border is the same element carrying the
+   padding, so a bottom edge can never collapse onto the border.
+   =========================================================== */
+.panel {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--panel-pad-y) var(--panel-pad-x);
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-caption {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin: 12px 0 0 0;
+    line-height: 1.5;
+}
+
+/* Two static panels side by side, matched heights via grid stretch */
+.panel-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 4fr);
+    gap: var(--gap-tile);
+    align-items: stretch;
+    width: 100%;
+}
+
+/* -- STREAMLIT CONTAINER OVERRIDE -------------------------- */
+/* Colour only. We deliberately do NOT touch padding here: the
+   padding lives on Streamlit's own bordered element, and
+   overriding it on a different element is what pushed content
+   onto the bottom border.                                     */
+[data-testid="stVerticalBlockBorderWrapper"] > div {
+    background: var(--bg-surface) !important;
+    border-color: var(--border) !important;
+    border-radius: var(--radius-lg) !important;
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+}
+
+/* Columns must be able to shrink below their content width */
+[data-testid="stHorizontalBlock"] {
+    align-items: stretch;
+    row-gap: var(--gap-tile);
+}
+
+[data-testid="stColumn"] { min-width: 0 !important; }
+[data-testid="stColumn"] > div { min-width: 0; }
+
+/* -- PIPELINE TILE GRID ------------------------------------ */
+/* auto-fit reflows 4 -> 2 -> 1 with no media query; grid stretch
+   equalises heights with no percentage height to resolve.      */
+.pipeline-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: var(--gap-tile);
+    align-items: stretch;
+    width: 100%;
+}
+
+.card-inset {
+    background: var(--bg-inset);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.pipeline-grid .card-inset {
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.pipeline-grid .card-inset:hover {
+    border-color: var(--teal-dim);
+    background: var(--bg-elevated);
+}
+
+.pipeline-step-number {
+    color: var(--teal) !important;
+    font-family: var(--font-mono) !important;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin: 0 0 8px 0;
+}
+
+.pipeline-step-title {
+    font-family: var(--font-display) !important;
+    font-weight: 600;
+    font-size: 0.92rem;
+    margin: 4px 0 6px 0;
+    color: var(--text-primary) !important;
+    line-height: 1.3;
+}
+
+.pipeline-step-desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary) !important;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* -- DIAGNOSTIC REPORT GRID -------------------------------- */
+.report-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+    gap: var(--gap-tile);
+    align-items: stretch;
+    width: 100%;
+}
+
+/* -- HEADER BAND ------------------------------------------- */
+.header-band {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 0 0 1.5rem 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.header-icon {
+    width: 42px;
+    height: 42px;
+    background: var(--teal-glow);
+    border: 1px solid var(--teal-dim);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.header-title {
+    font-family: var(--font-display) !important;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary) !important;
+    letter-spacing: -0.02em;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.header-subtitle {
+    font-family: var(--font-body) !important;
+    font-size: 0.72rem;
+    color: var(--text-secondary) !important;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.status-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-family: var(--font-mono) !important;
+    font-size: 0.72rem;
+    color: var(--text-secondary) !important;
+    white-space: nowrap;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(16, 217, 135, 0.4);
+    animation: pulse-ring 2.4s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+    flex-shrink: 0;
+}
+
+@keyframes pulse-ring {
+    0%   { box-shadow: 0 0 0 0 rgba(16, 217, 135, 0.55); }
+    70%  { box-shadow: 0 0 0 7px rgba(16, 217, 135, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 217, 135, 0); }
+}
+
+.hw-badge {
+    font-family: var(--font-mono) !important;
+    font-size: 0.68rem;
+    padding: 5px 10px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--teal) !important;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+
+/* -- SECTION LABELS ---------------------------------------- */
+.section-eyebrow {
+    font-family: var(--font-mono) !important;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal) !important;
+    margin: 0 0 8px 0;
+}
+
+.section-title {
+    font-family: var(--font-display) !important;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary) !important;
+    margin: 0 0 1rem 0;
+}
+
+/* -- TABS -------------------------------------------------- */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 0;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 4px;
+    margin-top: 1.25rem;
+    margin-bottom: 1.5rem;
+    width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+}
+
+.stTabs [data-baseweb="tab"] {
+    height: 36px;
+    border-radius: var(--radius-md);
+    padding: 0 20px;
+    font-family: var(--font-body) !important;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-secondary) !important;
+    background: transparent;
+    border: none;
+    white-space: nowrap;
+    transition: color 0.2s ease;
+}
+
+.stTabs [data-baseweb="tab"]:hover { color: var(--text-primary) !important; }
+
+.stTabs [aria-selected="true"] {
+    background: var(--bg-elevated) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border) !important;
+}
+
+.stTabs [data-baseweb="tab-highlight"] { display: none !important; }
+.stTabs [data-baseweb="tab-border"] { display: none !important; }
+
+/* -- FILE UPLOADER ----------------------------------------- */
+[data-testid="stFileUploader"] {
+    background: var(--bg-inset) !important;
+    border: 1.5px dashed var(--border) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 1.25rem !important;
+    transition: border-color 0.2s ease;
+}
+
+[data-testid="stFileUploader"]:hover { border-color: var(--teal-dim) !important; }
+
+[data-testid="stFileUploaderDropzone"] {
+    background: transparent !important;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+[data-testid="stFileUploaderDropzoneInput"] + div {
+    color: var(--text-secondary) !important;
+    font-size: 0.85rem !important;
+}
+
+/* -- AUDIO PLAYER ------------------------------------------ */
+/* Filter on the wrapper only, so it never double-inverts. */
+[data-testid="stAudio"] {
+    width: 100%;
+    filter: invert(0.92) hue-rotate(180deg) contrast(0.9);
+    border-radius: var(--radius-sm);
+    display: block;
+}
+
+[data-testid="stAudio"] audio,
+audio {
+    width: 100%;
+    height: 40px;
+    border-radius: var(--radius-sm);
+}
+
+/* -- BUTTONS ----------------------------------------------- */
+div.stButton > button {
+    background: var(--teal) !important;
+    color: #060B18 !important;
+    font-family: var(--font-display) !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    border: none !important;
+    border-radius: var(--radius-md) !important;
+    padding: 12px 28px !important;
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease !important;
+    width: 100% !important;
+}
+
+div.stButton > button:hover {
+    background: var(--teal-dim) !important;
+    box-shadow: 0 0 24px var(--teal-glow) !important;
+    transform: translateY(-1px) !important;
+    color: #ffffff !important;
+}
+
+div.stButton > button:active { transform: translateY(0) !important; }
+
+/* Run control - capped and left-aligned, shares an axis with
+   the demo button instead of spanning the whole canvas.       */
+.st-key-run_diagnostic_btn div.stButton > button {
+    max-width: 420px !important;
+    letter-spacing: 0.1em !important;
+    padding: 14px 28px !important;
+    margin-right: auto !important;
+}
+
+/* Demo loader - secondary outline, capped */
+.st-key-load_demo_btn div.stButton > button {
+    max-width: 300px !important;
+    background: transparent !important;
+    color: var(--teal) !important;
+    border: 1px solid var(--teal-dim) !important;
+    font-size: 0.76rem !important;
+    padding: 10px 20px !important;
+}
+
+.st-key-load_demo_btn div.stButton > button:hover {
+    background: var(--teal-glow) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--teal) !important;
+    box-shadow: none !important;
+}
+
+/* Ghost clear button */
+.st-key-clear_history_btn div.stButton > button {
+    background: transparent !important;
+    color: var(--text-muted) !important;
+    border: 1px solid var(--border) !important;
+    font-size: 0.7rem !important;
+    padding: 6px 14px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.04em !important;
+    max-width: 120px !important;
+    margin-left: auto !important;
+}
+
+.st-key-clear_history_btn div.stButton > button:hover {
+    color: var(--red) !important;
+    border-color: var(--red) !important;
+    background: var(--red-glow) !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* -- STATUS BANNERS ---------------------------------------- */
+/* No height:100% - the grid parent stretches these. */
+.status-normal,
+.status-fault {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--radius-md);
+    min-width: 0;
+}
+
+.status-normal {
+    background: var(--green-glow);
+    border: 1px solid var(--green-dim);
+    border-left: 3px solid var(--green);
+}
+
+.status-fault {
+    background: var(--amber-glow);
+    border: 1px solid var(--amber-dim);
+    border-left: 3px solid var(--amber);
+}
+
+.status-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.status-label {
+    font-family: var(--font-mono) !important;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin: 0 0 4px 0;
+}
+
+.status-label-normal { color: var(--green) !important; }
+.status-label-fault  { color: var(--amber) !important; }
+
+.status-heading {
+    font-family: var(--font-display) !important;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary) !important;
+    margin: 0 0 4px 0;
+    line-height: 1.3;
+}
+
+.status-desc {
+    font-size: 0.82rem;
+    color: var(--text-secondary) !important;
+    line-height: 1.55;
+    max-width: 70ch;
+    margin: 0;
+}
+
+/* -- METRIC CARD ------------------------------------------- */
+.metric-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 10px;
+    min-width: 0;
+}
+
+.metric-label {
+    font-family: var(--font-mono) !important;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-secondary) !important;
+    margin: 0;
+}
+
+.metric-value {
+    font-family: var(--font-mono) !important;
+    font-size: clamp(1.6rem, 1.1rem + 1.6vw, 2.2rem);
+    font-weight: 600;
+    line-height: 1;
+    color: var(--teal) !important;
+    letter-spacing: -0.03em;
+    margin: 0;
+}
+
+.metric-unit {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text-secondary) !important;
+}
+
+.metric-value-fault { color: var(--amber) !important; }
+
+/* -- STREAMLIT NATIVE METRIC OVERRIDE ---------------------- */
+div[data-testid="stMetric"] {
+    background: var(--bg-elevated) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 1rem 1.25rem !important;
+}
+
+div[data-testid="stMetricLabel"] {
+    font-family: var(--font-mono) !important;
+    font-size: 0.65rem !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    color: var(--text-secondary) !important;
+}
+
+div[data-testid="stMetricValue"] {
+    font-family: var(--font-mono) !important;
+    font-size: 1.9rem !important;
+    color: var(--teal) !important;
+}
+
+/* -- XAI NARRATIVE CARDS ----------------------------------- */
+.xai-card-normal {
+    background: var(--green-glow);
+    border: 1px solid var(--green-dim);
+    border-radius: var(--radius-md);
+    padding: 1.1rem 1.25rem;
+}
+
+.xai-card-fault {
+    background: var(--amber-glow);
+    border: 1px solid var(--amber-dim);
+    border-radius: var(--radius-md);
+    padding: 1.1rem 1.25rem;
+}
+
+.xai-eyebrow {
+    font-family: var(--font-mono) !important;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin: 0 0 8px 0;
+}
+
+.xai-eyebrow-normal { color: var(--green) !important; }
+.xai-eyebrow-fault  { color: var(--amber) !important; }
+
+.xai-text {
+    font-size: 0.82rem;
+    color: var(--text-secondary) !important;
+    line-height: 1.6;
+    max-width: 78ch;
+    margin: 0;
+}
+
+/* -- TABLES ------------------------------------------------ */
+.table-scroll {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono) !important;
+    font-size: 0.78rem;
+}
+
+.table-scroll .history-table { min-width: 440px; }
+
+.history-table th {
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted) !important;
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.history-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-soft);
+    color: var(--text-primary) !important;
+    vertical-align: middle;
+}
+
+.history-table tr:last-child td { border-bottom: none; }
+.history-table tr:hover td { background: var(--bg-elevated); }
+
+.history-table code {
+    background: var(--bg-inset);
+    border: 1px solid var(--border-soft);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 0.72rem;
+    color: var(--teal) !important;
+}
+
+.tag-normal,
+.tag-fault {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+
+.tag-normal {
+    background: var(--green-glow);
+    border: 1px solid var(--green-dim);
+    color: var(--green) !important;
+}
+
+.tag-fault {
+    background: var(--amber-glow);
+    border: 1px solid var(--amber-dim);
+    color: var(--amber) !important;
+}
+
+.conf-mono {
+    color: var(--teal) !important;
+    font-size: 0.78rem;
+    white-space: nowrap;
+}
+
+.time-mono {
+    color: var(--text-muted) !important;
+    font-size: 0.72rem;
+    white-space: nowrap;
+}
+
+.file-cell {
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--text-muted) !important;
+    font-size: 0.82rem;
+    font-family: var(--font-body) !important;
+}
+
+/* -- DIVIDER ----------------------------------------------- */
+hr[data-testid="stDivider"], [data-testid="stDivider"] {
+    border-color: var(--border) !important;
+    margin: 1rem 0 !important;
+}
+
+/* -- SPINNER ----------------------------------------------- */
+[data-testid="stSpinner"] > div { border-top-color: var(--teal) !important; }
+
+/* -- CAPTIONS ---------------------------------------------- */
+[data-testid="stCaptionContainer"] {
+    color: var(--text-secondary) !important;
+    font-size: 0.75rem !important;
+    font-family: var(--font-mono) !important;
+}
+
+/* -- ALERTS ------------------------------------------------ */
+[data-testid="stAlert"] {
+    border-radius: var(--radius-md) !important;
+    border: 1px solid var(--border) !important;
+    font-size: 0.82rem !important;
+}
+
+/* -- PYPLOT FIGURES ---------------------------------------- */
+[data-testid="stImage"] img,
+[data-testid="stImageContainer"] img {
+    border-radius: var(--radius-md);
+    max-width: 100%;
+    height: auto;
+}
+
+/* -- FILE META STRIP --------------------------------------- */
+.file-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    padding: 10px 12px;
+    background: var(--bg-inset);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    margin-top: 8px;
+}
+
+.file-meta-item {
+    font-family: var(--font-mono) !important;
+    font-size: 0.72rem;
+    color: var(--text-secondary) !important;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-meta-item span { color: var(--text-primary) !important; font-weight: 500; }
+
+/* -- HELPER TEXT ------------------------------------------- */
+.helper-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary) !important;
+    margin: 14px 0 8px 0;
+    max-width: 60ch;
+}
+
+/* -- ANALYTICS SUBPLOT LABEL ------------------------------- */
+.plot-label {
+    font-family: var(--font-mono) !important;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted) !important;
+    text-align: center;
+    margin-top: 6px;
+}
+
+/* ===========================================================
+   RESPONSIVE
+   =========================================================== */
+
+@media (max-width: 1100px) {
+    .main .block-container,
+    [data-testid="stMainBlockContainer"] {
+        padding: 1.5rem 1.5rem 3rem 1.5rem;
+    }
+    :root { --panel-pad-x: 1.15rem; }
+}
+
+@media (max-width: 860px) {
+    [data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
+    [data-testid="stColumn"] {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        min-width: 100% !important;
+    }
+    .report-grid { grid-template-columns: 1fr; }
+    .panel-grid  { grid-template-columns: 1fr; }
+    .st-key-clear_history_btn div.stButton > button { margin-left: 0 !important; }
+}
+
+@media (max-width: 640px) {
+    .main .block-container,
+    [data-testid="stMainBlockContainer"] {
+        padding: 1rem 0.9rem 2.5rem 0.9rem;
+    }
+    :root {
+        --panel-pad-y: 1.1rem;
+        --panel-pad-x: 1rem;
+    }
+    .header-band { align-items: flex-start; padding-bottom: 1rem; }
+    .header-title { font-size: 1.05rem; }
+    .header-subtitle { font-size: 0.62rem; letter-spacing: 0.05em; }
+    .status-normal,
+    .status-fault { flex-direction: column; gap: 10px; }
+    .status-heading { font-size: 0.98rem; }
+    .stTabs [data-baseweb="tab"] { padding: 0 12px; font-size: 0.76rem; }
+    .st-key-load_demo_btn div.stButton > button,
+    .st-key-run_diagnostic_btn div.stButton > button {
+        max-width: 100% !important;
+    }
+    .pipeline-grid { grid-template-columns: 1fr; }
+}
+
+/* -- MOTION PREFERENCE ------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    div.stButton > button:hover { transform: none !important; }
+}
+
+/* -- INLINE REPLACEMENTS ----------------------------------- */
+.file-meta {
+    margin-top: 4px;
+}
+
+.helper-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary) !important;
+    margin: 12px 0 6px 0;
+}
+
+.xai-card-normal,
+.xai-card-fault {
+    margin-bottom: 12px;
+}
+
+.panel-caption {
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: var(--text-secondary) !important;
+}

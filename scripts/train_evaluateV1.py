@@ -11,8 +11,8 @@ from sklearn.metrics import confusion_matrix, classification_report
 # --- PATH SETUP ---
 # Automatically finds the project root directory (one folder up from /scripts)
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-NORMAL_DIR = os.path.join(BASE_DIR, "data", "normal")
-ANOMALOUS_DIR = os.path.join(BASE_DIR, "data", "anomalous")
+NORMAL_DIR = os.path.join(BASE_DIR, "data_0db", "normal")
+ANOMALOUS_DIR = os.path.join(BASE_DIR, "data_0db", "anomalous")
 MODEL_SAVE_PATH = os.path.join(BASE_DIR, "models", "valve_anomaly_resnet18_best.pth")
 
 # 1. Custom Dataset

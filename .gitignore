@@ -186,13 +186,20 @@ __marimo__/
 # macOS
 .DS_Store
 
+# ==========================================
 # --- PROJECT SPECIFIC IGNORES ---
-# Ignore the massive audio datasets completely
+# ==========================================
+
+# Ignore massive audio datasets
 data/
 data_0db/
+data_6db/
 data_minus6db/
+data_2021/
+data_stress_merged/
 
 # Ignore extracted error files from stress tests
+stress_test_errors_data/
 false_alarms_minus6db/
 hard_negatives_to_review/
 missed_anomalies_minus6db/
@@ -200,7 +207,7 @@ missed_anomalies_minus6db/
 # Ignore one-time utility scripts
 merge_trick_files.py
 
-# Ignore outdated/bad model files (but allow V2 to be tracked)
-models/valve_anomaly_resnet18.pth
-models/valve_anomaly_resnet18_best.pth
-models/valve_anomaly_resnet18_best_v1.pth
+# Ignore ALL model weights to save GitHub space...
+models/*.pth
+# ...EXCEPT the final robust V4 model needed for Streamlit
+!models/valve_anomaly_resnet18_v4_robust.pth
